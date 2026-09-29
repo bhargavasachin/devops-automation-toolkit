@@ -3,6 +3,7 @@
 
 import argparse
 import subprocess
+import sys
 
 
 def run(args):
@@ -26,9 +27,15 @@ def main():
         ["kubectl", "-n", args.namespace, "get", "events", "--sort-by=.lastTimestamp"],
     ]
 
+    failed = 0
     for command in commands:
-        run(command)
+        if run(command) != 0:
+            failed += 1
+
+    if failed:
+        print(f"{failed} kubectl command(s) failed.", file=sys.stderr)
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
